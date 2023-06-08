@@ -21,11 +21,11 @@ export async function action({ request }: ActionFunctionArgs) {
   return null;
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!params.handle) {
     throw new Response(null, { status: 404 });
   }
-  let product = await getProductWithVariants(params.handle);
+  let product = await getProductWithVariants(request.signal, params.handle);
   console.log("product", product);
   return {
     product,

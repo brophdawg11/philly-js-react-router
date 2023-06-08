@@ -53,15 +53,19 @@ export type ProductWithVariants = Product & {
 
 const graphQLClient = new GraphQLClient("https://mock.shop/api", {
   method: `GET`,
-  // jsonSerializer: {
-  //   parse: JSON.parse,
-  //   stringify: JSON.stringify,
-  // },
+  jsonSerializer: {
+    parse: JSON.parse,
+    stringify: JSON.stringify,
+  },
 });
 
-export async function getCollections(num = 10): Promise<Collection[]> {
-  const data = (await graphQLClient.request(
-    gql`
+export async function getCollections(
+  signal: AbortSignal,
+  num = 10
+): Promise<Collection[]> {
+  const data = (await graphQLClient.request({
+    signal,
+    document: gql`
       query getCollections($num: Int!) {
         collections(first: $num) {
           edges {
@@ -80,8 +84,8 @@ export async function getCollections(num = 10): Promise<Collection[]> {
         }
       }
     `,
-    { num }
-  )) as any;
+    variables: { num },
+  })) as any;
   return data.collections.edges.map((edge: any) => ({
     id: edge.node.id,
     handle: edge.node.handle,
@@ -92,11 +96,13 @@ export async function getCollections(num = 10): Promise<Collection[]> {
 }
 
 export async function getProductsInCollection(
+  signal: AbortSignal,
   handle: string,
   num = 20
 ): Promise<CollectionWithProducts> {
-  const data = (await graphQLClient.request(
-    gql`
+  const data = (await graphQLClient.request({
+    signal,
+    document: gql`
       query getProductsInCollection($handle: String!, $num: Int!) {
         collection(handle: $handle) {
           id
@@ -124,8 +130,8 @@ export async function getProductsInCollection(
         }
       }
     `,
-    { handle, num }
-  )) as any;
+    variables: { handle, num },
+  })) as any;
 
   const collection: CollectionWithProducts = {
     id: data.collection.id,
@@ -147,11 +153,13 @@ export async function getProductsInCollection(
 }
 
 export async function getProductWithVariants(
+  signal: AbortSignal,
   handle: string,
   num = 3
 ): Promise<ProductWithVariants> {
-  const data = (await graphQLClient.request(
-    gql`
+  const data = (await graphQLClient.request({
+    signal,
+    document: gql`
       query getProduct($handle: String!, $num: Int!) {
         product(handle: $handle) {
           id
@@ -189,8 +197,8 @@ export async function getProductWithVariants(
         }
       }
     `,
-    { handle, num }
-  )) as any;
+    variables: { handle, num },
+  })) as any;
 
   return {
     id: data.product.id,

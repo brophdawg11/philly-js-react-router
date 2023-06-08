@@ -18,7 +18,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   let order = url.searchParams.get("order");
 
   // Fetch data
-  let collection = await getProductsInCollection(params.handle!);
+  let collection = await getProductsInCollection(
+    request.signal,
+    params.handle!
+  );
 
   // Sort products and pick active page
   let startIndex = (page - 1) * PAGE_SIZE;

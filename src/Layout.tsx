@@ -1,5 +1,6 @@
 import {
   Link,
+  LoaderFunctionArgs,
   Outlet,
   useFetcher,
   useLoaderData,
@@ -7,8 +8,8 @@ import {
 } from "react-router-dom";
 import { getCart, getCollections, getUser } from "./api";
 
-export async function loader() {
-  const collections = await getCollections();
+export async function loader({ request }: LoaderFunctionArgs) {
+  const collections = await getCollections(request.signal);
   const cart = await getCart();
   const user = await getUser();
   return {
